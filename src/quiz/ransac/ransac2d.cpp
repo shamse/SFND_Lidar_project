@@ -94,9 +94,17 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 		auto c = x1*y2 - x2*y1;
 		auto len = sqrt(a*a+b*b);
 
-		a /= len;
-		b /= len;
-		c /= len;
+		if (len > 0.)
+		{
+			a /= len;
+			b /= len;
+			c /= len;
+		}
+		else
+		{
+			continue;
+		}
+		
 
 		for (size_t idx = 0; idx < cloud->points.size(); idx++)
 		{
