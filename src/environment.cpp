@@ -50,7 +50,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
     // TODO:: Create point processor
     auto point_cloud {lidar->scan()};
-    renderRays(viewer, (Vect3{0,0,0}), point_cloud);
+    renderRays(viewer, lidar->position, point_cloud);
   
 
     delete lidar;
