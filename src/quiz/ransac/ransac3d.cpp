@@ -95,6 +95,8 @@ struct Plane
 
 auto Ransac3D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxInteration, float distanceTol)
 {
+	auto startTime = std::chrono::steady_clock::now();
+
 	std::unordered_set<int> result{};
 
 	while (maxInteration--)
@@ -119,6 +121,10 @@ auto Ransac3D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxInteration, floa
 		if (inliers.size() > result.size())
 			result = inliers;
 	}
+
+	auto endTime = std::chrono::steady_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    std::cout << "Ransac3D took " << elapsedTime.count() << " milliseconds" << std::endl;
 
 	return result;
 }
