@@ -77,13 +77,10 @@ struct KdTree
 		float dx = abs(target[0]-root->point[0]);
 		float dy = abs(target[1]-root->point[1]);
 
-		cout << root->id << " " << dx << " " << dy << endl;
-
 		if ( dx < tol && dy < tol) {
 			// radial comparison
 			if (sqrt(dx*dx + dy*dy) < tol) {
 				res.push_back(root->id);
-				cout << " pushed\n";
 			}
 		}
 

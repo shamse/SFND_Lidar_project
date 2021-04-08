@@ -75,12 +75,36 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 }
 
+void clusterHelper(std::vector<int>& cluster, std::vector<bool>& processed, const std::vector<std::vector<float>>& points, int id, KdTree* tree, float tol) 
+{
+	processed[id] = true;
+	cluster.push_back(id);
+	
+	std::vector<int> nearby_points {tree->search(points[id], tol)};
+
+	for (int p : nearby_points) {
+		if (!processed[p]) {
+			clusterHelper(cluster, processed, points, p, tree, tol);
+		}
+	}
+}
+
 std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol)
 {
 
 	// TODO: Fill out this function to return list of indices for each cluster
 
 	std::vector<std::vector<int>> clusters;
+
+	std::vector<bool> processed(points.size(),false);
+
+	for (int i = 0; i < points.size(); i++) {
+		if (!processed[i]) {
+			std::vector<int> cluster;
+			clusterHelper(cluster, processed, points, i, tree, distanceTol);
+			clusters.push_back(cluster);
+		}
+	}
  
 	return clusters;
 
@@ -100,8 +124,8 @@ int main ()
 	pcl::visualization::PCLVisualizer::Ptr viewer = initScene(window, 25);
 
 	// Create data
-	// std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3}, {7.2,6.1}, {8.0,5.3}, {7.2,7.1}, {0.2,-7.1}, {1.7,-6.9}, {-1.2,-7.2}, {2.2,-8.9} };
-	std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3} };
+	std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3}, {7.2,6.1}, {8.0,5.3}, {7.2,7.1}, {0.2,-7.1}, {1.7,-6.9}, {-1.2,-7.2}, {2.2,-8.9} };
+	// std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3} };
 	// std::vector<std::vector<float>> points = {{-6.2,7.0}};
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData(points);
 
@@ -128,7 +152,7 @@ int main ()
   	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
   	std::cout << "clustering found " << clusters.size() << " and took " << elapsedTime.count() << " milliseconds" << std::endl;
 
-/*
+
   	// Render clusters
   	int clusterId = 0;
 	std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
@@ -143,7 +167,7 @@ int main ()
   	if(clusters.size()==0)
   		renderPointCloud(viewer,cloud,"data");
 	
- */	
+ 
   	while (!viewer->wasStopped ())
   	{
   	  viewer->spinOnce ();
