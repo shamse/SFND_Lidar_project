@@ -45,6 +45,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     region.setInputCloud(cloudFiltered);
     region.filter(*cloudRegion);
 
+    // points on the roof
     std::vector<int> indices;
 
     pcl::CropBox<PointT> roof(true);

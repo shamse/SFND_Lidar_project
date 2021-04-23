@@ -85,7 +85,21 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
     ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-    renderPointCloud(viewer, inputCloud, "inputCloud");
+    // renderPointCloud(viewer, inputCloud, "inputCloud");
+
+    // render a test box to identify limits
+    Box box1 {-1.5, -1.7 , -1., 2.6, 1.7, -0.4}; // same as roof crop
+    Box box2 {-8, -8, -1, 12, 8, 1};
+    renderBox(viewer, box1, 0, Color(1., 0., 1.));
+    // renderBox(viewer, box2, 1, Color(1., 1., 0.));
+
+    Eigen::Vector4f regionMin {-8, -6, -2, 1};
+    Eigen::Vector4f regionMax {12, 6, 2, 1};
+    float voxelSize = 0.25;
+
+    // Experiment with the ? values and find what works best
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, voxelSize, regionMin, regionMax);
+    renderPointCloud(viewer, filterCloud, "filterCloud");
 }
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
