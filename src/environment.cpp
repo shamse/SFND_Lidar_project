@@ -93,13 +93,38 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
     renderBox(viewer, box1, 0, Color(1., 0., 1.));
     // renderBox(viewer, box2, 1, Color(1., 1., 0.));
 
-    Eigen::Vector4f regionMin {-8, -6, -2, 1};
-    Eigen::Vector4f regionMax {12, 6, 2, 1};
+    Eigen::Vector4f regionMin {-10, -6, -2, 1};
+    Eigen::Vector4f regionMax {24, 6, 2, 1};
     float voxelSize = 0.25;
 
     // Experiment with the ? values and find what works best
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, voxelSize, regionMin, regionMax);
-    renderPointCloud(viewer, filterCloud, "filterCloud");
+    // renderPointCloud(viewer, filterCloud, "filterCloud");
+
+    // segment
+    auto segmentCloud {pointProcessorI->SegmentPlane(filterCloud, 100, 0.2)};  // returns pair of clouds
+
+    // test render
+    // renderPointCloud(viewer, segmentCloud.first, "cars", Color(1., 0., 0.));
+    renderPointCloud(viewer, segmentCloud.second, "road", Color(0., 1., 0.));
+
+    // clustering
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->Clustering(segmentCloud.first, 0.35, 15, 400);
+
+    int clusterID = 0;
+
+    for (const auto& cluster : cloudClusters)
+    {
+        std::cout << "Cluster size : " ;
+        pointProcessorI->numPoints(cluster);  // cout num points!
+        Color color = Color((double) rand()/(RAND_MAX), (double) rand()/(RAND_MAX), (double) rand()/(RAND_MAX));
+        renderPointCloud(viewer, cluster, "obstCloud"+std::to_string(clusterID), color);
+        // bounding box
+        Box box = pointProcessorI->BoundingBox(cluster);
+        renderBox(viewer, box, clusterID+1);
+        ++clusterID;
+    }
+
 }
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}

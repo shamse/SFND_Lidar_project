@@ -106,7 +106,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     pcl::ModelCoefficients::Ptr coefficients {new pcl::ModelCoefficients};
     pcl::PointIndices::Ptr inliers {new pcl::PointIndices};
     // create the segmentation object
-    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    pcl::SACSegmentation<PointT> seg;
     // optional 
     seg.setOptimizeCoefficients(true);
     // mandatory
