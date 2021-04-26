@@ -1,11 +1,7 @@
 /* \author Aaron Brown */
 // Quiz on implementing simple RANSAC line fitting
 
-#include "../../render/render.h"
-#include <unordered_set>
-#include "../../processPointClouds.h"
-// using templates for processPointClouds so also include .cpp to help linker
-#include "../../processPointClouds.cpp"
+#include "ransac.h"
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData()
 {
@@ -47,7 +43,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData()
 pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData3D()
 {
 	ProcessPointClouds<pcl::PointXYZ> pointProcessor;
-	return pointProcessor.loadPcd("../../../sensors/data/pcd/simpleHighway.pcd");
+	return pointProcessor.loadPcd("../../../../src/sensors/data/pcd/simpleHighway.pcd");
 }
 
 
@@ -62,73 +58,6 @@ pcl::visualization::PCLVisualizer::Ptr initScene()
 }
 
 
-struct Plane
-{
-	pcl::PointXYZ p1, p2, p3;
-	float A, B, C, D;
-
-	Plane(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::unordered_set<int> id)
-	{
-		assert(id.size() == 3);
-		auto itr = id.begin();
-		
-		p1 = cloud->points[*(itr++)];
-		p2 = cloud->points[*(itr++)];
-		p3 = cloud->points[*(itr++)];
-
-		Eigen::Vector3f v1{p2.x-p1.x, p2.y-p1.y, p2.z-p1.z};
-		Eigen::Vector3f v2{p3.x-p1.x, p3.y-p1.y, p3.z-p1.z};
-		auto v{v1.cross(v2)};
-		v.normalize();
-		A = v(0);
-		B = v(1);
-		C = v(2);
-		D = -(A*p1.x+B*p1.y+C*p1.z);
-	}
-
-	auto distance(pcl::PointXYZ p)
-	{
-		return abs(A*p.x + B*p.y + C*p.z);
-	}
-};
-
-
-auto Ransac3D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxInteration, float distanceTol)
-{
-	auto startTime = std::chrono::steady_clock::now();
-
-	std::unordered_set<int> result{};
-
-	while (maxInteration--)
-	{
-		// pick random samples
-		std::unordered_set<int> inliers{};
-		while (inliers.size() < 3)
-			inliers.insert(rand()%cloud->points.size());
-
-		Plane plane(cloud, inliers);
-
-		// loop over points and add to set if close
-		for (int idx = 0; idx < cloud->points.size(); idx++)
-		{
-			if (inliers.find(idx) != inliers.end())
-				continue;
-
-			if (plane.distance(cloud->points[idx]) < distanceTol)
-				inliers.insert(idx);
-		}
-
-		if (inliers.size() > result.size())
-			result = inliers;
-	}
-
-	auto endTime = std::chrono::steady_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "Ransac3D took " << elapsedTime.count() << " milliseconds" << std::endl;
-
-	return result;
-}
-
 int main ()
 {
 
@@ -140,20 +69,23 @@ int main ()
 	
 
 	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
-	std::unordered_set<int> inliers = Ransac3D(cloud, 100, 0.5);
+	std::unordered_set<int> inliers = Ransac3D<pcl::PointXYZ>(cloud, 100, 0.5);
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());
+	// pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
+	// pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());
 
-	for(int index = 0; index < cloud->points.size(); index++)
-	{
-		pcl::PointXYZ point = cloud->points[index];
-		if(inliers.count(index))
-			cloudInliers->points.push_back(point);
-		else
-			cloudOutliers->points.push_back(point);
-	}
+	// for(int index = 0; index < cloud->points.size(); index++)
+	// {
+	// 	pcl::PointXYZ point = cloud->points[index];
+	// 	if(inliers.count(index))
+	// 		cloudInliers->points.push_back(point);
+	// 	else
+	// 		cloudOutliers->points.push_back(point);
+	// }
+	auto cloud_pair = separateClouds<pcl::PointXYZ>(cloud, inliers);
 
+	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers = cloud_pair.first;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers = cloud_pair.second;
 
 	// Render 2D point cloud with inliers and outliers
 	if(inliers.size())
