@@ -2,6 +2,9 @@
 // Quiz on implementing simple RANSAC line fitting
 
 #include "ransac.h"
+#include "../../processPointClouds.h"
+// using templates for processPointClouds so also include .cpp to help linker
+#include "../../processPointClouds.cpp"
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData()
 {

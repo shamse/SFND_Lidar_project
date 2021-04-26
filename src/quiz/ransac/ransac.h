@@ -1,14 +1,11 @@
 
 #include "../../render/render.h"
 #include <unordered_set>
-#include "../../processPointClouds.h"
-// using templates for processPointClouds so also include .cpp to help linker
-#include "../../processPointClouds.cpp"
 
 template <typename PointT>
 struct Plane
 {
-	pcl::PointXYZ p1, p2, p3;
+	PointT p1, p2, p3;
 	float A, B, C, D;
 
 	Plane(typename pcl::PointCloud<PointT>::Ptr cloud, std::unordered_set<int> id)
@@ -91,7 +88,7 @@ separateClouds
 
 	for(int index = 0; index < cloud->points.size(); index++)
 	{
-		pcl::PointXYZ point = cloud->points[index];
+		PointT point = cloud->points[index];
 		if(inliers.count(index))
 			cloudInliers->points.push_back(point);
 		else

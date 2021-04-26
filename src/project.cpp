@@ -8,6 +8,7 @@
 #include "processPointClouds.h"
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
+#include "quiz/ransac/ransac.h"
 
 template <typename PointT>
 void cityBlock
@@ -36,28 +37,30 @@ void cityBlock
     // renderPointCloud(viewer, filterCloud, "filterCloud");
 
     // segment
-    auto segmentCloud {pointProcessorI->SegmentPlane(filterCloud, 100, 0.2)};  // returns pair of clouds
+    //auto segmentCloud {pointProcessorI->SegmentPlane(filterCloud, 100, 0.2)};  // returns pair of clouds
+    auto inliers = Ransac3D<PointT>(filterCloud, 200, 0.2);
+    auto segmentCloud = separateClouds<PointT>(filterCloud, inliers);
 
     // test render
-    // renderPointCloud(viewer, segmentCloud.first, "cars", Color(1., 0., 0.));
-    renderPointCloud(viewer, segmentCloud.second, "road", Color(0., 1., 0.));
+    renderPointCloud(viewer, segmentCloud.first, "road", Color(0., 1., 0.));
+    renderPointCloud(viewer, segmentCloud.second, "cars", Color(1., 0., 0.));
 
     // clustering
-    std::vector<typename pcl::PointCloud<PointT>::Ptr> cloudClusters = pointProcessorI->Clustering(segmentCloud.first, 0.35, 15, 400);
+    // std::vector<typename pcl::PointCloud<PointT>::Ptr> cloudClusters = pointProcessorI->Clustering(segmentCloud.first, 0.35, 15, 400);
 
-    int clusterID = 0;
+    // int clusterID = 0;
 
-    for (const auto& cluster : cloudClusters)
-    {
-        std::cout << "Cluster size : " ;
-        pointProcessorI->numPoints(cluster);  // cout num points!
-        Color color = Color((double) rand()/(RAND_MAX), (double) rand()/(RAND_MAX), (double) rand()/(RAND_MAX));
-        renderPointCloud(viewer, cluster, "obstCloud"+std::to_string(clusterID), color);
-        // bounding box
-        Box box = pointProcessorI->BoundingBox(cluster);
-        renderBox(viewer, box, clusterID+1);
-        ++clusterID;
-    }
+    // for (const auto& cluster : cloudClusters)
+    // {
+    //     std::cout << "Cluster size : " ;
+    //     pointProcessorI->numPoints(cluster);  // cout num points!
+    //     Color color = Color((double) rand()/(RAND_MAX), (double) rand()/(RAND_MAX), (double) rand()/(RAND_MAX));
+    //     renderPointCloud(viewer, cluster, "obstCloud"+std::to_string(clusterID), color);
+    //     // bounding box
+    //     Box box = pointProcessorI->BoundingBox(cluster);
+    //     renderBox(viewer, box, clusterID+1);
+    //     ++clusterID;
+    // }
 
 }
 
@@ -82,10 +85,11 @@ int main(int argc, char** argv)
         viewer->removeAllShapes();
 
         // load pcd and run obstacle detection process
-        inputCloud = pointProcessorI->loadPcd((*streamIterator).string());
+        // inputCloud = pointProcessorI->loadPcd((*streamIterator).string());
+        inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/simpleHighway.pcd");
         cityBlock(viewer, pointProcessorI, inputCloud);
 
-        streamIterator++;
+        // streamIterator++;
         if (streamIterator == stream.end())
             streamIterator = stream.begin();
 
