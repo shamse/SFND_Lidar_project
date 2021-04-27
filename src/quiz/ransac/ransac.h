@@ -15,21 +15,25 @@ struct Plane
 		
 		p1 = cloud->points[*(itr++)];
 		p2 = cloud->points[*(itr++)];
-		p3 = cloud->points[*(itr++)];
+		p3 = cloud->points[*itr];
 
 		Eigen::Vector3f v1{p2.x-p1.x, p2.y-p1.y, p2.z-p1.z};
 		Eigen::Vector3f v2{p3.x-p1.x, p3.y-p1.y, p3.z-p1.z};
 		auto v{v1.cross(v2)};
-		v.normalize();
 		A = v(0);
 		B = v(1);
 		C = v(2);
 		D = -(A*p1.x+B*p1.y+C*p1.z);
+        float len = v.norm();
+        A /= len;
+        B /= len;
+        C /= len;
+        D /= len;
 	}
 
 	auto distance(PointT p)
 	{
-		return abs(A*p.x + B*p.y + C*p.z);
+		return abs(A*p.x + B*p.y + C*p.z + D);
 	}
 };
 
@@ -37,15 +41,19 @@ template <typename PointT>
 auto Ransac3D
 (
     typename pcl::PointCloud<PointT>::Ptr cloud, 
-    int maxInteration, 
+    int maxIteration, 
     float distanceTol
 )
 {
 	auto startTime = std::chrono::steady_clock::now();
 
+    /* initialize random seed: */
+    srand (time(NULL));
+
+
 	std::unordered_set<int> result{};
 
-	while (maxInteration--)
+	while (maxIteration--)
 	{
 		// pick random samples
 		std::unordered_set<int> inliers{};

@@ -24,13 +24,13 @@ void cityBlock
 
     // render a test box to identify limits
     Box box1 {-1.5, -1.7 , -1., 2.6, 1.7, -0.4}; // same as roof crop
-    Box box2 {-8, -8, -1, 12, 8, 1};
+    // Box box2 {-8, -8, -1, 12, 8, 1};
     renderBox(viewer, box1, 0, Color(1., 0., 1.));
     // renderBox(viewer, box2, 1, Color(1., 1., 0.));
 
-    Eigen::Vector4f regionMin {-10, -6, -2, 1};
-    Eigen::Vector4f regionMax {24, 6, 2, 1};
-    float voxelSize = 0.25;
+    Eigen::Vector4f regionMin {-10, -8, -2, 1};
+    Eigen::Vector4f regionMax {24, 8, 2, 1};
+    float voxelSize = .5;
 
     // Experiment with the ? values and find what works best
     typename pcl::PointCloud<PointT>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, voxelSize, regionMin, regionMax);
@@ -38,7 +38,7 @@ void cityBlock
 
     // segment
     //auto segmentCloud {pointProcessorI->SegmentPlane(filterCloud, 100, 0.2)};  // returns pair of clouds
-    auto inliers = Ransac3D<PointT>(filterCloud, 200, 0.2);
+    auto inliers = Ransac3D<PointT>(filterCloud, 100, 0.2);
     auto segmentCloud = separateClouds<PointT>(filterCloud, inliers);
 
     // test render
@@ -78,6 +78,8 @@ int main(int argc, char** argv)
     auto streamIterator = stream.begin();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud;
 
+    // inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/simpleHighway.pcd");
+
     while (!viewer->wasStopped ())
     {
         // clear viewer
@@ -85,11 +87,10 @@ int main(int argc, char** argv)
         viewer->removeAllShapes();
 
         // load pcd and run obstacle detection process
-        // inputCloud = pointProcessorI->loadPcd((*streamIterator).string());
-        inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/simpleHighway.pcd");
+        inputCloud = pointProcessorI->loadPcd((*streamIterator).string());
         cityBlock(viewer, pointProcessorI, inputCloud);
 
-        // streamIterator++;
+        streamIterator++;
         if (streamIterator == stream.end())
             streamIterator = stream.begin();
 
