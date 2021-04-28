@@ -19,10 +19,6 @@ void cityBlock
     const typename pcl::PointCloud<PointT>::Ptr& inputCloud
 ) 
 {
-//    ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
-//    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcdsr("../c/sensors/data/pcd/data_1/0000000000.pcd");
-    // renderPointCloud(viewer, inputCloud, "inputCloud");
-
     // render a test box to identify limits
     // Box box1 {-1.5, -1.7 , -1., 2.6, 1.7, -0.4}; // same as roof crop
     // Box box2 {-8, -8, -1, 12, 8, 1};
@@ -67,8 +63,6 @@ void cityBlock
 
 int main(int argc, char** argv)
 {
-    std::cout << "Hello project.\n"; 
-
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
@@ -78,8 +72,6 @@ int main(int argc, char** argv)
     std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1");
     auto streamIterator = stream.begin();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud;
-
-    // inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/simpleHighway.pcd");
 
     while (!viewer->wasStopped ())
     {
