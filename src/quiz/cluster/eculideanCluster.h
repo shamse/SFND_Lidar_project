@@ -1,3 +1,7 @@
+/* author Ehsan Shams */
+// LIDAR Obstacle Detection Project 
+// Udacity - sensor fusion program
+
 #ifndef EUCLIDEANCLUSTER_H
 #define EUCLIDEANCLUSTER_H
 

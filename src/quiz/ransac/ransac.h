@@ -1,3 +1,6 @@
+/* author Ehsan Shams */
+// LIDAR Obstacle Detection Project 
+// Udacity - sensor fusion program
 
 #include "../../render/render.h"
 #include <unordered_set>
