@@ -17,6 +17,7 @@ struct Node
 	{}
 };
 
+template <int dim>
 struct KdTree
 {
 	Node* root;
@@ -27,13 +28,10 @@ struct KdTree
 
 	void insert(std::vector<float> point, int id)
 	{
-		// TODO: Fill in this function to insert a new point into the tree
-		// the function should create a new node and place correctly with in the root 
 		Node* node = new Node(point, id);
 
 		// insert(root, node);
 		insertHelper(&root, 0, point, id);
-
 	}
 
 	void insertHelper(Node** node, uint depth, std::vector<float> point, int id)
@@ -44,7 +42,7 @@ struct KdTree
 		}
 		else
 		{
-			int cd = depth%2;
+			int cd = depth%dim;
 
 			if (point[cd] < (*node)->point[cd])
 			{
@@ -76,16 +74,17 @@ struct KdTree
 		// bbox comparison
 		float dx = abs(target[0]-root->point[0]);
 		float dy = abs(target[1]-root->point[1]);
+		float dz = abs(target[2]-root->point[2]);
 
-		if ( dx < tol && dy < tol) {
+		if ( dx < tol && dy < tol && dz < tol) {
 			// radial comparison
-			if (sqrt(dx*dx + dy*dy) < tol) {
+			if (sqrt(dx*dx + dy*dy + dz*dz) < tol) {
 				res.push_back(root->id);
 			}
 		}
 
 		// move on to next point(s)
-		int cd = depth%2;
+		int cd = depth%dim;
 		
 		if (target[cd] - tol < root->point[cd])
 			searchHelper(res, root->left, depth+1, target, tol);
