@@ -116,7 +116,7 @@ void cityBlock
     renderPointCloud(viewer, segmentCloud.second, "road", Color(0., 1., 0.));
 
     // clustering
-    std::vector<typename pcl::PointCloud<PointT>::Ptr> cloudClusters = pointProcessorI->Clustering(segmentCloud.first, 0.35, 15, 400);
+    std::vector<typename pcl::PointCloud<PointT>::Ptr> cloudClusters = pointProcessorI->Clustering(segmentCloud.first, 0.25, 15, 100);
 
     int clusterID = 0;
 
