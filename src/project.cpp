@@ -63,7 +63,6 @@ void cityBlock
 
 int main(int argc, char** argv)
 {
-    // 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
