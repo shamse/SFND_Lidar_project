@@ -28,3 +28,7 @@ The key files for this project are
 * environment.h
 * src/quiz/ransac/ransac.h
 * src/quiz/cluster/euclideanCluster.h
+
+## Running Tests
+
+Copy sensor files to src/sensors/data/pcd/data_1
