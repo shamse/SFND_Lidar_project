@@ -11,6 +11,7 @@ In this project, lidar data stream is used to detect obstacles on the road. 3D r
 $> sudo apt install libpcl-dev
 $> cd ~
 $> git clone https://github.com/shamse/SFND_Lidar_project.git
+$> git checkout project
 $> cd SFND_Lidar_Obstacle_Detection
 $> mkdir build && cd build
 $> cmake ..
