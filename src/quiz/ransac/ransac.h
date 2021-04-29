@@ -4,6 +4,8 @@
 
 #include "../../render/render.h"
 #include <unordered_set>
+#include <ctime>
+#include <chrono>
 
 template <typename PointT>
 struct Plane
